@@ -240,7 +240,8 @@
         fail. To bridge theory and practice, we propose an efficient bipartite graph-based surrogate that preserves
         submodular structure while enabling scalable greedy selection with provable guarantees. Experiments on
         classical ML benchmarks and large-scale LLM fine-tuning data selection demonstrate substantial improvements
-        over existing methods.
+        over existing methods. Code is publicly available at
+        <a href="https://github.com/frankhlchi/SeqDataVal">https://github.com/frankhlchi/SeqDataVal</a>.
       </p>
     </section>
 
@@ -310,7 +311,7 @@
         \(S_k^{\pi}\) is its first \(k\) picks. Our objective is the area under the selection curve:
       </p>
       <div class="eq">
-        \[ \pi^{*} \;=\; \arg\max_{\pi}\; \frac{1}{n}\sum_{k=1}^{n} U\!\left(S_k^{\pi}\right), \qquad k \sim \mathrm{Uniform}(1,n). \]
+        \[ \pi^{*} \;=\; \arg\max_{\pi}\; \mathbb{E}_{k}\!\left[\,U(S_k^{\pi})\,\right] \;=\; \arg\max_{\pi}\; \frac{1}{n}\sum_{k=1}^{n} U\!\left(S_k^{\pi}\right), \qquad k \sim \mathrm{Uniform}(1,n). \]
       </div>
       <p class="lead">
         This rewards an order that does well at every budget \(k\), not just one. We read it as a decision process.
@@ -395,16 +396,16 @@
         mean accuracy of Data Shapley, Beta Shapley, and Banzhaf as \(p\) goes from 0 to 1.
       </p>
       <p class="lead">
-        <b>Why it matters.</b> This pins down when the popular methods break. As the points become interchangeable, all
-        three fall together, and the size of the drop tracks the bound we prove. So the theory does not just say that
-        they fail. It says exactly when.
+        <b>Why it matters.</b> This shows when the popular methods break down. As the points become interchangeable, all
+        three fall together, and the size of the drop is consistent with the bound we prove. So the theory does not just
+        say that these methods fail. It explains when and why.
       </p>
       <figure class="paper-fig fig-narrow">
         <img src="fig_curvature.png" alt="As features within each class are merged, points become more substitutable and accuracy drops for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
         <figcaption>
           <b>Figure 3.</b> Top to bottom, the propagation proportion goes from 0.0 to 1.0. Points become more
           substitutable, and mean accuracy drops: Shapley 0.738 to 0.595, BetaShapley 0.706 to 0.597, and Banzhaf
-          0.720 to 0.590. Using substitutability as a proxy for curvature, this drop matches the (1&minus;c)&sup2;
+          0.720 to 0.590. Using substitutability as a proxy for curvature, this drop is consistent with the (1&minus;c)&sup2;
           bound from our submodularity analysis.
         </figcaption>
       </figure>
