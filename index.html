@@ -10,7 +10,7 @@
 <!-- Open Graph / social -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Unifying and Optimizing Data Values for Selection via Sequential Decision-Making" />
-<meta property="og:description" content="ICML 2026 Spotlight — a sequential decision-making view of data valuation and selection." />
+<meta property="og:description" content="ICML 2026 Spotlight. A sequential decision-making view of data valuation and selection." />
 <meta property="og:url" content="https://frankhlchi.github.io/SeqWeb/" />
 <meta name="twitter:card" content="summary" />
 
@@ -111,6 +111,13 @@
   }
   .abstract{font-size:1.06rem;color:#23263a;}
   .lead{font-size:1.06rem;}
+  .lead + .lead{margin-top:16px;}
+  .tribute{
+    margin:24px 0 0;padding:16px 20px;
+    background:var(--soft);border-left:3px solid var(--accent);
+    border-radius:0 10px 10px 0;
+    font-style:italic;color:#3a3f55;font-size:1.0rem;
+  }
 
   /* Figures (original paper figures) */
   figure.paper-fig{margin:26px auto 0;text-align:center;}
@@ -174,7 +181,7 @@
       Yao Ma<sup>1</sup>
     </p>
     <p class="affil"><sup>1</sup> Rensselaer Polytechnic Institute &nbsp;·&nbsp; <sup>2</sup> AT&amp;T Chief Data Office</p>
-    <p class="corr">Open to collaboration and discussion &mdash; feel free to reach out: <a href="mailto:hc962@cornell.edu">hc962@cornell.edu</a></p>
+    <p class="corr">Open to collaboration and discussion. Feel free to reach out at <a href="mailto:hc962@cornell.edu">hc962@cornell.edu</a>.</p>
 
     <div class="btns">
       <a class="btn btn-primary" href="https://arxiv.org/abs/2502.04554">
@@ -221,59 +228,83 @@
       </p>
     </section>
 
+    <section id="story">
+      <h2>The Story</h2>
+      <p class="lead">
+        Approximate dynamic programming, or ADP, is one of the classic and most elegant ideas in optimization. It gets
+        less attention today than reinforcement learning, but it runs deep. The line runs from Richard Bellman to
+        Warren Powell and Dimitri Bertsekas. For decades it has solved hard real world problems, from fleet management
+        to live ride hailing systems like Uber.
+      </p>
+      <p class="lead">
+        LLMs have made training data the thing that matters most. And picking that data is rarely one shot. Data keeps
+        arriving in batches, and earlier picks stay in. The real question is how to handle these dynamics. Yet most
+        methods still pick one fixed subset.
+      </p>
+      <p class="lead">
+        So we brought ADP to this setting. Seen as a sequential decision process, popular methods like Data Shapley are
+        just myopic special cases. That one view unifies them, shows when they fail, and gives a faster and more
+        accurate selector with guarantees. This holds on both classical ML and large scale LLM fine tuning.
+      </p>
+      <p class="lead">
+        Optimization is everywhere. New tools like LLMs hand us fresh problems to optimize. They also work as a new
+        kind of optimization tool for many other problems.
+      </p>
+      <p class="tribute">
+        In memory of Dimitri Bertsekas. His work on dynamic programming shaped this field, and this paper.
+      </p>
+    </section>
+
     <section id="overview">
       <h2>Overview</h2>
       <p class="lead">
-        We often want to keep only the <em>most useful</em> subset of training data. Data-valuation methods such as
-        <strong>Data Shapley</strong> assign each example a score, and we then select the top-scoring ones. But <em>why</em>
-        score-then-select works &mdash; and <em>when</em> it breaks &mdash; has been poorly understood. Our key move is to
-        treat selection not as one-shot scoring, but as a <strong>sequence of decisions</strong> whose optimum is given by
-        dynamic programming. A &ldquo;data value&rdquo; is then best understood as an <strong>encoding of that optimal
-        selection sequence</strong>.
+        We often want to keep only the most useful part of a training set. Methods like <strong>Data Shapley</strong>
+        give each example a score, and we pick the top ones. This works well in practice, but it has been hard to say
+        why, or when it breaks. Our idea is to stop scoring all the data at once. Instead, we pick data one step at a
+        time. The best order to pick comes from <strong>dynamic programming</strong>. A data value is then just a way
+        to encode that best order.
       </p>
 
       <figure class="paper-fig">
-        <img src="fig_framework.png" alt="Framework for sequential data selection: a sequential data-decision problem, its core solution components (reward modeling and decision policies), and the resulting selection-performance curves." loading="lazy" />
+        <img src="fig_framework.png" alt="The framework for sequential data selection: a sequential decision problem, its core solution parts (reward modeling and decision policy), and the resulting selection curves." loading="lazy" />
         <figcaption>
-          <b>Figure 1. Framework for sequential data selection.</b> Three components: (1) a sequential data-decision
-          problem that formulates data selection as step-by-step decision-making; (2) the core components of any solution
-          &mdash; reward modeling and decision policies; and (3) selection-performance curves for different
-          reward-modeling + decision-policy combinations, where exact dynamic programming (DP) achieves optimal performance.
+          <b>Figure 1. The framework for sequential data selection.</b> It has three parts. First, a sequential decision
+          problem that picks data one step at a time. Second, the core parts of any solution, that is, reward modeling
+          and a decision policy. Third, selection curves for different choices of reward and policy. Exact dynamic
+          programming gives the best curve.
         </figcaption>
       </figure>
 
       <p class="lead" style="margin-top:24px;">
-        Through this lens, classical methods like Data Shapley turn out to be <strong>myopic, one-step linear
-        approximations</strong> of the true sequential problem. Using submodularity and <em>utility curvature</em>, we
-        characterize when those linear approximations degrade &mdash; and replace them with a submodularity-preserving
-        <strong>bipartite-graph surrogate</strong> that scales to large data and comes with provable guarantees.
+        We also show when these scoring methods start to fail. What matters is submodularity and how curved the utility
+        is. We then replace them with a <strong>bipartite graph surrogate</strong>. It keeps the submodular structure,
+        scales to large data, and comes with provable guarantees.
       </p>
     </section>
 
     <section id="results">
       <h2>Results</h2>
       <p class="lead">
-        We evaluate the proposed bipartite-based method against standard data-valuation baselines for selection on
-        <strong>eight datasets</strong>, and validate the curvature analysis on controlled data. See the
-        <a href="https://arxiv.org/abs/2502.04554">paper</a> for full results, including large-scale LLM fine-tuning
-        data selection.
+        We test our bipartite method against common data value baselines on <strong>eight datasets</strong>. We also
+        check the curvature analysis on controlled data. The <a href="https://arxiv.org/abs/2502.04554">paper</a> has
+        the full results, including data selection for large language model fine tuning.
       </p>
 
       <figure class="paper-fig">
-        <img src="fig_results.png" alt="Selection-performance curves comparing the proposed bipartite-based method against baselines across eight datasets." loading="lazy" />
+        <img src="fig_results.png" alt="Selection curves comparing our bipartite method with baselines across eight datasets." loading="lazy" />
         <figcaption>
-          <b>Figure 2.</b> Evaluation of our proposed bipartite-based method against baselines on eight datasets.
+          <b>Figure 2.</b> Our bipartite method compared with baselines on eight datasets.
         </figcaption>
       </figure>
 
       <figure class="paper-fig fig-narrow">
-        <img src="fig_curvature.png" alt="As within-class feature aggregation increases, points become more substitutable and accuracy decreases for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
+        <img src="fig_curvature.png" alt="As features within each class are merged, points become more substitutable and accuracy drops for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
         <figcaption>
-          <b>Figure 3.</b> As within-class feature aggregation increases (top to bottom, propagation proportion
-          0.0&nbsp;&rarr;&nbsp;1.0), points become increasingly substitutable and mean accuracy decreases:
-          Shapley (0.738&nbsp;&rarr;&nbsp;0.595), BetaShapley (0.706&nbsp;&rarr;&nbsp;0.597), and
-          Banzhaf (0.720&nbsp;&rarr;&nbsp;0.590). Using substitutability as a proxy for curvature, this degradation is
-          consistent with the (1&minus;c)&sup2; bound from our submodularity analysis.
+          <b>Figure 3.</b> We slowly merge the features within each class, from top to bottom, as the propagation
+          proportion goes from 0.0 to 1.0. Points then become more substitutable, and mean accuracy drops. Shapley
+          goes from 0.738 to 0.595. BetaShapley goes from 0.706 to 0.597. Banzhaf goes from 0.720 to 0.590. We use
+          substitutability as a proxy for curvature. This drop matches the (1&minus;c)&sup2; bound from our
+          submodularity analysis.
         </figcaption>
       </figure>
     </section>
@@ -281,11 +312,11 @@
     <section id="contributions">
       <h2>Key Contributions</h2>
       <ul class="contrib">
-        <li><b>A sequential view of selection.</b> We cast data selection as a dynamic program whose optimal selection sequence defines what a &ldquo;data value&rdquo; should encode.</li>
-        <li><b>A unifying theory.</b> Data Shapley and related semi-values emerge as myopic <em>linear</em> approximations to this sequential problem under approximate dynamic programming.</li>
-        <li><b>When approximations fail.</b> Under submodularity, we quantify how selection optimality degrades with utility curvature &mdash; explaining when and why existing methods break down.</li>
-        <li><b>A scalable, provable surrogate.</b> An efficient bipartite graph-based surrogate preserves submodular structure and enables greedy selection with provable guarantees.</li>
-        <li><b>Strong empirical results.</b> Substantial improvements over prior methods on classical ML benchmarks and large-scale LLM fine-tuning data selection.</li>
+        <li><b>A sequential view.</b> We treat data selection as a step by step problem. Its best order tells us what a data value should encode.</li>
+        <li><b>One framework for many methods.</b> Data Shapley and similar semi-values turn out to be simple linear approximations that look only one step ahead.</li>
+        <li><b>When they fail.</b> Using submodularity, we show how selection gets worse as the utility curves more. This tells us when and why current methods break.</li>
+        <li><b>A method that scales.</b> We build a bipartite graph surrogate. It keeps the submodular structure and runs greedy selection with provable guarantees.</li>
+        <li><b>Strong results.</b> Our method beats prior work on classic ML benchmarks and on data selection for large language model fine tuning.</li>
       </ul>
     </section>
 
@@ -308,7 +339,7 @@
 <footer>
   <div class="wrap">
     <p>
-      Project page for <strong>&ldquo;Unifying and Optimizing Data Values for Selection via Sequential Decision-Making&rdquo;</strong> &middot; ICML 2026 Spotlight.<br/>
+      Project page for <strong>&ldquo;Unifying and Optimizing Data Values for Selection via Sequential Decision-Making&rdquo;</strong>. ICML 2026 Spotlight.<br/>
       <a href="https://arxiv.org/abs/2502.04554">arXiv</a> &middot;
       <a href="https://arxiv.org/pdf/2502.04554">PDF</a> &middot;
       <a href="https://github.com/frankhlchi/SeqDataVal">Code</a> &middot;
