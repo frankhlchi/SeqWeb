@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unifying and Optimizing Data Values for Selection via Sequential Decision-Making | ICML 2026</title>
+<meta name="description" content="ICML 2026 Spotlight. We recast data selection as a sequential decision-making problem, unify Data Shapley and related methods as myopic linear approximations, and propose a scalable bipartite-graph surrogate with provable guarantees." />
+<meta name="author" content="Hongliang Chi, Qiong Wu, Zhengyi Zhou, Jonathan Light, Emily Dodwell, Yao Ma" />
+
+<!-- Open Graph / social -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Unifying and Optimizing Data Values for Selection via Sequential Decision-Making" />
+<meta property="og:description" content="ICML 2026 Spotlight — a sequential decision-making view of data valuation and selection." />
+<meta property="og:url" content="https://frankhlchi.github.io/SeqWeb/" />
+<meta name="twitter:card" content="summary" />
+
+<!-- Inline SVG favicon (no external asset) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Cg fill='none' stroke='white' stroke-width='4' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='6'/%3E%3Ccircle cx='46' cy='32' r='6'/%3E%3Ccircle cx='18' cy='46' r='6'/%3E%3Cpath d='M23 21 41 30M23 43 41 35'/%3E%3C/g%3E%3C/svg%3E" />
+
+<style>
+  :root{
+    --accent:#4f46e5;
+    --accent-dark:#3730a3;
+    --accent-soft:#eef0fe;
+    --ink:#1a1c2b;
+    --muted:#5b6175;
+    --bg:#ffffff;
+    --soft:#f6f7fb;
+    --border:#e6e8f2;
+    --maxw:880px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans",sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+  /* Hero */
+  header.hero{
+    text-align:center;
+    padding:64px 24px 40px;
+    background:
+      radial-gradient(1200px 400px at 50% -120px, var(--accent-soft), transparent 70%),
+      linear-gradient(#ffffff,#ffffff);
+    border-bottom:1px solid var(--border);
+  }
+  .badge{
+    display:inline-block;
+    font-size:.78rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent-dark);
+    background:var(--accent-soft);
+    border:1px solid #d9ddfb;
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:22px;
+  }
+  h1{
+    font-size:clamp(1.7rem,3.6vw,2.55rem);
+    line-height:1.18;
+    letter-spacing:-.02em;
+    margin:0 auto 24px;
+    max-width:780px;
+  }
+  .authors{
+    font-size:1.06rem;
+    margin:0 auto 8px;
+    max-width:760px;
+    color:var(--ink);
+  }
+  .authors a{color:var(--ink);border-bottom:1px solid transparent;}
+  .authors a:hover{color:var(--accent);border-bottom-color:var(--accent);text-decoration:none;}
+  .authors sup{color:var(--accent);font-weight:600;}
+  .affil{color:var(--muted);font-size:.95rem;margin:10px auto 4px;max-width:680px;}
+  .corr{color:var(--muted);font-size:.88rem;margin-top:6px;}
+  .corr a{color:var(--muted);text-decoration:underline;}
+
+  /* Buttons */
+  .btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:30px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:.95rem;font-weight:600;
+    padding:11px 20px;border-radius:999px;
+    border:1px solid var(--border);
+    background:#fff;color:var(--ink);
+    transition:transform .08s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:hover{text-decoration:none;transform:translateY(-1px);box-shadow:0 6px 18px rgba(31,35,69,.10);}
+  .btn .ico{width:17px;height:17px;display:inline-block;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);}
+
+  /* Main */
+  main{padding:8px 0 24px;}
+  section{padding:38px 0;border-bottom:1px solid var(--border);}
+  section:last-child{border-bottom:0;}
+  h2{
+    font-size:1.0rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accent-dark);margin:0 0 18px;font-weight:700;
+  }
+  .abstract{font-size:1.06rem;color:#23263a;}
+  .lead{font-size:1.06rem;}
+
+  /* Pipeline diagram (pure CSS, no images) */
+  .pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:8px 0 4px;}
+  .step{
+    flex:1 1 150px;min-width:140px;
+    background:var(--soft);border:1px solid var(--border);border-radius:12px;
+    padding:14px 14px;font-size:.92rem;text-align:center;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .step b{display:block;color:var(--accent-dark);font-size:.86rem;margin-bottom:4px;}
+  .arrow{display:flex;align-items:center;color:var(--accent);font-size:1.3rem;font-weight:700;}
+  @media(max-width:640px){
+    .pipe{flex-direction:column;}
+    .arrow{justify-content:center;transform:rotate(90deg);height:18px;}
+  }
+
+  ul.contrib{margin:0;padding-left:0;list-style:none;}
+  ul.contrib li{position:relative;padding:10px 0 10px 30px;border-bottom:1px solid var(--border);}
+  ul.contrib li:last-child{border-bottom:0;}
+  ul.contrib li::before{
+    content:"";position:absolute;left:4px;top:18px;
+    width:9px;height:9px;border-radius:50%;
+    background:var(--accent);
+  }
+  ul.contrib b{color:var(--ink);}
+
+  /* BibTeX */
+  .cite-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  pre{
+    background:#0f1222;color:#e7e9f5;
+    padding:18px 20px;border-radius:12px;overflow-x:auto;
+    font-size:.86rem;line-height:1.55;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    margin:6px 0 0;
+  }
+  .copy-btn{
+    font-size:.82rem;font-weight:600;padding:7px 14px;border-radius:999px;
+    border:1px solid var(--border);background:#fff;color:var(--ink);cursor:pointer;
+    transition:background .15s ease;
+  }
+  .copy-btn:hover{background:var(--soft);}
+  .copy-btn.done{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  footer{padding:34px 24px 56px;text-align:center;color:var(--muted);font-size:.9rem;}
+  footer a{color:var(--muted);text-decoration:underline;}
+
+  /* SVG icon helper */
+  .ico svg{width:100%;height:100%;display:block;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">ICML 2026 · Spotlight</span>
+    <h1>Unifying and Optimizing Data Values for Selection via Sequential Decision-Making</h1>
+
+    <p class="authors">
+      <a href="mailto:hc962@cornell.edu">Hongliang Chi</a><sup>1,&dagger;</sup>,
+      Qiong Wu<sup>2</sup>,
+      Zhengyi Zhou<sup>2</sup>,
+      Jonathan Light<sup>1</sup>,
+      Emily Dodwell<sup>2</sup>,
+      Yao Ma<sup>1</sup>
+    </p>
+    <p class="affil"><sup>1</sup> Rensselaer Polytechnic Institute &nbsp;·&nbsp; <sup>2</sup> AT&amp;T Chief Data Office</p>
+    <p class="corr"><sup>&dagger;</sup> Corresponding author: <a href="mailto:hc962@cornell.edu">hc962@cornell.edu</a></p>
+
+    <div class="btns">
+      <a class="btn btn-primary" href="seqdataval_icml2026.pdf">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+        Paper (PDF)
+      </a>
+      <a class="btn" href="https://github.com/frankhlchi/SeqDataVal">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.8c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.8 18.3 5.1 18.3 5.1c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg></span>
+        Code
+      </a>
+      <a class="btn" href="https://icml.cc/virtual/2026/poster/65157">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></span>
+        ICML Page
+      </a>
+      <a class="btn" href="#cite">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></span>
+        BibTeX
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section id="abstract">
+      <h2>Abstract</h2>
+      <p class="abstract">
+        Data selection has emerged as a crucial downstream application of data valuation, yet the theoretical
+        foundations for using data values in selection remain underexplored. We reformulate data selection as a
+        sequential decision-making problem where the optimal selection sequence arises from dynamic programming,
+        and data values can be understood as encodings of this optimal sequence. This framework unifies and
+        reinterprets existing methods like Data Shapley through the lens of approximate dynamic programming,
+        revealing them as myopic linear approximations to the sequential problem. We further analyze how selection
+        optimality degrades with utility curvature under submodularity, explaining when and why these approximations
+        fail. To bridge theory and practice, we propose an efficient bipartite graph-based surrogate that preserves
+        submodular structure while enabling scalable greedy selection with provable guarantees. Experiments on
+        classical ML benchmarks and large-scale LLM fine-tuning data selection demonstrate substantial improvements
+        over existing methods.
+      </p>
+    </section>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p class="lead">
+        We often want to keep only the <em>most useful</em> subset of training data. Data-valuation methods such as
+        <strong>Data Shapley</strong> assign each example a score, and we then select the top-scoring ones. But <em>why</em>
+        score-then-select works &mdash; and <em>when</em> it breaks &mdash; has been poorly understood. Our key move is to
+        treat selection not as one-shot scoring, but as a <strong>sequence of decisions</strong>:
+      </p>
+
+      <div class="pipe">
+        <div class="step"><b>Problem</b>Pick the best subset of data for a task</div>
+        <div class="arrow">&rarr;</div>
+        <div class="step"><b>Reframe</b>Sequential decision-making solved by dynamic programming</div>
+        <div class="arrow">&rarr;</div>
+        <div class="step"><b>Insight</b>Data values = encodings of the optimal selection sequence</div>
+        <div class="arrow">&rarr;</div>
+        <div class="step"><b>Method</b>Bipartite-graph surrogate &amp; greedy selection with guarantees</div>
+      </div>
+
+      <p class="lead" style="margin-top:22px;">
+        Through this lens, classical methods like Data Shapley turn out to be <strong>myopic, one-step linear
+        approximations</strong> of the true sequential problem. Using submodularity and <em>utility curvature</em>, we
+        characterize exactly when those linear approximations degrade &mdash; and replace them with a submodularity-preserving
+        <strong>bipartite-graph surrogate</strong> that scales to large data and comes with provable guarantees. The result:
+        substantial gains on both classical ML benchmarks and large-scale <strong>LLM fine-tuning data selection</strong>.
+      </p>
+    </section>
+
+    <section id="contributions">
+      <h2>Key Contributions</h2>
+      <ul class="contrib">
+        <li><b>A sequential view of selection.</b> We cast data selection as a dynamic program whose optimal selection sequence defines what a &ldquo;data value&rdquo; should encode.</li>
+        <li><b>A unifying theory.</b> Data Shapley and related semi-values emerge as myopic <em>linear</em> approximations to this sequential problem under approximate dynamic programming.</li>
+        <li><b>When approximations fail.</b> Under submodularity, we quantify how selection optimality degrades with utility curvature &mdash; explaining when and why existing methods break down.</li>
+        <li><b>A scalable, provable surrogate.</b> An efficient bipartite graph-based surrogate preserves submodular structure and enables greedy selection with provable guarantees.</li>
+        <li><b>Strong empirical results.</b> Substantial improvements over prior methods on classical ML benchmarks and large-scale LLM fine-tuning data selection.</li>
+      </ul>
+    </section>
+
+    <section id="cite">
+      <div class="cite-head">
+        <h2 style="margin-bottom:0;">Citation</h2>
+        <button class="copy-btn" id="copyBtn" onclick="copyBib()">Copy BibTeX</button>
+      </div>
+<pre id="bibtex">@inproceedings{chi2026unifying,
+  title     = {Unifying and Optimizing Data Values for Selection via Sequential Decision-Making},
+  author    = {Chi, Hongliang and Wu, Qiong and Zhou, Zhengyi and Light, Jonathan and Dodwell, Emily and Ma, Yao},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  publisher = {PMLR},
+  year      = {2026}
+}</pre>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Project page for <strong>&ldquo;Unifying and Optimizing Data Values for Selection via Sequential Decision-Making&rdquo;</strong> &middot; ICML 2026 Spotlight.<br/>
+      <a href="https://github.com/frankhlchi/SeqDataVal">Code</a> &middot;
+      <a href="seqdataval_icml2026.pdf">Paper</a> &middot;
+      <a href="https://icml.cc/virtual/2026/poster/65157">ICML</a> &middot;
+      <a href="mailto:hc962@cornell.edu">Contact</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  function copyBib(){
+    var txt = document.getElementById('bibtex').innerText;
+    var btn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(txt).then(function(){
+      btn.textContent = 'Copied!';
+      btn.classList.add('done');
+      setTimeout(function(){ btn.textContent = 'Copy BibTeX'; btn.classList.remove('done'); }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
