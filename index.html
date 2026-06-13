@@ -118,6 +118,12 @@
     border-radius:0 10px 10px 0;
     font-style:italic;color:#3a3f55;font-size:1.0rem;
   }
+  .eq{
+    margin:18px 0;padding:6px 18px;
+    background:var(--soft);border:1px solid var(--border);border-radius:10px;
+    overflow-x:auto;overflow-y:hidden;
+  }
+  .eq mjx-container{margin:0 auto;}
 
   /* Figures (original paper figures) */
   figure.paper-fig{margin:26px auto 0;text-align:center;}
@@ -282,6 +288,44 @@
       </p>
     </section>
 
+    <section id="formulation">
+      <h2>Formulation</h2>
+      <p class="lead">
+        Here is the problem we actually solve. Most methods pick one fixed subset. We instead optimize the whole
+        selection curve at once.
+      </p>
+      <p class="lead">
+        Let \(\mathcal{D}\) be a set of \(n\) data points, and let \(U\colon 2^{\mathcal{D}} \to \mathbb{R}\) be a
+        utility, the score a model gets when trained on a subset. A selection order is a permutation \(\pi\), and
+        \(S_k^{\pi}\) is its first \(k\) picks. Our objective is the area under the selection curve:
+      </p>
+      <div class="eq">
+        \[ \pi^{*} \;=\; \arg\max_{\pi}\; \frac{1}{n}\sum_{k=1}^{n} U\!\left(S_k^{\pi}\right), \qquad k \sim \mathrm{Uniform}(1,n). \]
+      </div>
+      <p class="lead">
+        This rewards an order that does well at every budget \(k\), not just one. We read it as a decision process.
+        The state \(s\) is the set chosen so far. Each step adds one point \(a\) and earns the prefix utility
+        \(U(s \cup \{a\})\). Summing these rewards gives back the objective above. Exact dynamic programming then
+        solves it through the Bellman equation:
+      </p>
+      <div class="eq">
+        \[ V(s) \;=\; \max_{a \in \mathcal{D}\setminus s}\Big\{\, U\!\left(s \cup \{a\}\right) + V\!\left(s \cup \{a\}\right) \Big\}, \qquad V(s)=0 \ \text{ if } \ |s|=n. \]
+      </div>
+      <p class="lead">
+        The best next pick weighs the reward now plus the value of all future picks. This is where common methods take
+        a shortcut. They drop the future term \(V\), and fit a linear surrogate \(\hat{U}(S) = \hat{b} + \sum_{i \in S}\theta_i\).
+        For this surrogate the marginal gain of adding \(a\) is simply \(\theta_a\), so one step greedy selection just
+        ranks points by \(\theta_a\):
+      </p>
+      <div class="eq">
+        \[ a_t \in \arg\max_{a \in \mathcal{D}\setminus s_t} \Delta_a \hat{U}(s_t), \qquad \Delta_a \hat{U}(s) \;=\; \hat{U}(s \cup \{a\}) - \hat{U}(s) \;=\; \theta_a. \]
+      </div>
+      <p class="lead">
+        Those \(\theta_a\) are exactly data values. So Data Shapley and its relatives are the myopic, linear special
+        case of our problem. The full objective keeps the future term, and that is what our method goes after.
+      </p>
+    </section>
+
     <section id="results">
       <h2>Results</h2>
       <p class="lead">
@@ -291,9 +335,10 @@
       </p>
 
       <p class="lead">
-        Figure 2 is the main result. Each panel is one dataset. A curve shows how well the chosen data does as the
-        budget grows, and higher is better. Our method generally comes out ahead. It picks useful data earlier and
-        reaches better performance for the same budget.
+        Figure 2 is the main result. Each panel is one dataset. The x axis is the selection budget, that is, how many
+        points we have picked. The y axis is the utility \(U(S_k)\) of that selection, so each line is a selection
+        curve and the objective is the area under it. Our method generally comes out ahead. It picks useful data
+        sooner and holds a higher curve for the same budget.
       </p>
       <figure class="paper-fig">
         <img src="fig_results.png" alt="Selection curves comparing our bipartite method with baselines across eight datasets." loading="lazy" />
@@ -370,5 +415,15 @@
     });
   }
 </script>
+
+<!-- MathJax v3 (tex-svg): rigorous, crisp math rendering -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </body>
 </html>
