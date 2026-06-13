@@ -82,8 +82,9 @@
   .authors a:hover{color:var(--accent);border-bottom-color:var(--accent);text-decoration:none;}
   .authors sup{color:var(--accent);font-weight:600;}
   .affil{color:var(--muted);font-size:.95rem;margin:10px auto 4px;max-width:680px;}
-  .corr{color:var(--muted);font-size:.88rem;margin-top:6px;}
-  .corr a{color:var(--muted);text-decoration:underline;}
+  .corr{color:var(--muted);font-size:.92rem;margin-top:10px;}
+  .corr a{color:var(--accent);text-decoration:none;}
+  .corr a:hover{text-decoration:underline;}
 
   /* Buttons */
   .btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:30px;}
@@ -111,20 +112,18 @@
   .abstract{font-size:1.06rem;color:#23263a;}
   .lead{font-size:1.06rem;}
 
-  /* Pipeline diagram (pure CSS, no images) */
-  .pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:8px 0 4px;}
-  .step{
-    flex:1 1 150px;min-width:140px;
-    background:var(--soft);border:1px solid var(--border);border-radius:12px;
-    padding:14px 14px;font-size:.92rem;text-align:center;
-    display:flex;flex-direction:column;justify-content:center;
+  /* Figures (original paper figures) */
+  figure.paper-fig{margin:26px auto 0;text-align:center;}
+  figure.paper-fig img{
+    max-width:100%;height:auto;display:block;margin:0 auto;
+    border:1px solid var(--border);border-radius:12px;background:#fff;
   }
-  .step b{display:block;color:var(--accent-dark);font-size:.86rem;margin-bottom:4px;}
-  .arrow{display:flex;align-items:center;color:var(--accent);font-size:1.3rem;font-weight:700;}
-  @media(max-width:640px){
-    .pipe{flex-direction:column;}
-    .arrow{justify-content:center;transform:rotate(90deg);height:18px;}
+  figure.paper-fig.fig-narrow{max-width:480px;}
+  figure.paper-fig figcaption{
+    font-size:.88rem;color:var(--muted);margin-top:12px;
+    text-align:left;line-height:1.55;
   }
+  figure.paper-fig figcaption b{color:var(--ink);}
 
   ul.contrib{margin:0;padding-left:0;list-style:none;}
   ul.contrib li{position:relative;padding:10px 0 10px 30px;border-bottom:1px solid var(--border);}
@@ -156,7 +155,6 @@
   footer{padding:34px 24px 56px;text-align:center;color:var(--muted);font-size:.9rem;}
   footer a{color:var(--muted);text-decoration:underline;}
 
-  /* SVG icon helper */
   .ico svg{width:100%;height:100%;display:block;}
 </style>
 </head>
@@ -168,7 +166,7 @@
     <h1>Unifying and Optimizing Data Values for Selection via Sequential Decision-Making</h1>
 
     <p class="authors">
-      <a href="mailto:hc962@cornell.edu">Hongliang Chi</a><sup>1,&dagger;</sup>,
+      <a href="https://frankhlchi.github.io/">Hongliang Chi</a><sup>1</sup>,
       Qiong Wu<sup>2</sup>,
       Zhengyi Zhou<sup>2</sup>,
       Jonathan Light<sup>1</sup>,
@@ -176,14 +174,14 @@
       Yao Ma<sup>1</sup>
     </p>
     <p class="affil"><sup>1</sup> Rensselaer Polytechnic Institute &nbsp;·&nbsp; <sup>2</sup> AT&amp;T Chief Data Office</p>
-    <p class="corr"><sup>&dagger;</sup> Corresponding author: <a href="mailto:hc962@cornell.edu">hc962@cornell.edu</a></p>
+    <p class="corr">Open to collaboration and discussion &mdash; feel free to reach out: <a href="mailto:hc962@cornell.edu">hc962@cornell.edu</a></p>
 
     <div class="btns">
       <a class="btn btn-primary" href="https://arxiv.org/abs/2502.04554">
         <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg></span>
         arXiv
       </a>
-      <a class="btn" href="seqdataval_icml2026.pdf">
+      <a class="btn" href="https://arxiv.org/pdf/2502.04554">
         <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
         Paper (PDF)
       </a>
@@ -229,26 +227,55 @@
         We often want to keep only the <em>most useful</em> subset of training data. Data-valuation methods such as
         <strong>Data Shapley</strong> assign each example a score, and we then select the top-scoring ones. But <em>why</em>
         score-then-select works &mdash; and <em>when</em> it breaks &mdash; has been poorly understood. Our key move is to
-        treat selection not as one-shot scoring, but as a <strong>sequence of decisions</strong>:
+        treat selection not as one-shot scoring, but as a <strong>sequence of decisions</strong> whose optimum is given by
+        dynamic programming. A &ldquo;data value&rdquo; is then best understood as an <strong>encoding of that optimal
+        selection sequence</strong>.
       </p>
 
-      <div class="pipe">
-        <div class="step"><b>Problem</b>Pick the best subset of data for a task</div>
-        <div class="arrow">&rarr;</div>
-        <div class="step"><b>Reframe</b>Sequential decision-making solved by dynamic programming</div>
-        <div class="arrow">&rarr;</div>
-        <div class="step"><b>Insight</b>Data values = encodings of the optimal selection sequence</div>
-        <div class="arrow">&rarr;</div>
-        <div class="step"><b>Method</b>Bipartite-graph surrogate &amp; greedy selection with guarantees</div>
-      </div>
+      <figure class="paper-fig">
+        <img src="fig_framework.png" alt="Framework for sequential data selection: a sequential data-decision problem, its core solution components (reward modeling and decision policies), and the resulting selection-performance curves." loading="lazy" />
+        <figcaption>
+          <b>Figure 1. Framework for sequential data selection.</b> Three components: (1) a sequential data-decision
+          problem that formulates data selection as step-by-step decision-making; (2) the core components of any solution
+          &mdash; reward modeling and decision policies; and (3) selection-performance curves for different
+          reward-modeling + decision-policy combinations, where exact dynamic programming (DP) achieves optimal performance.
+        </figcaption>
+      </figure>
 
-      <p class="lead" style="margin-top:22px;">
+      <p class="lead" style="margin-top:24px;">
         Through this lens, classical methods like Data Shapley turn out to be <strong>myopic, one-step linear
         approximations</strong> of the true sequential problem. Using submodularity and <em>utility curvature</em>, we
-        characterize exactly when those linear approximations degrade &mdash; and replace them with a submodularity-preserving
-        <strong>bipartite-graph surrogate</strong> that scales to large data and comes with provable guarantees. The result:
-        substantial gains on both classical ML benchmarks and large-scale <strong>LLM fine-tuning data selection</strong>.
+        characterize when those linear approximations degrade &mdash; and replace them with a submodularity-preserving
+        <strong>bipartite-graph surrogate</strong> that scales to large data and comes with provable guarantees.
       </p>
+    </section>
+
+    <section id="results">
+      <h2>Results</h2>
+      <p class="lead">
+        We evaluate the proposed bipartite-based method against standard data-valuation baselines for selection on
+        <strong>eight datasets</strong>, and validate the curvature analysis on controlled data. See the
+        <a href="https://arxiv.org/abs/2502.04554">paper</a> for full results, including large-scale LLM fine-tuning
+        data selection.
+      </p>
+
+      <figure class="paper-fig">
+        <img src="fig_results.png" alt="Selection-performance curves comparing the proposed bipartite-based method against baselines across eight datasets." loading="lazy" />
+        <figcaption>
+          <b>Figure 2.</b> Evaluation of our proposed bipartite-based method against baselines on eight datasets.
+        </figcaption>
+      </figure>
+
+      <figure class="paper-fig fig-narrow">
+        <img src="fig_curvature.png" alt="As within-class feature aggregation increases, points become more substitutable and accuracy decreases for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
+        <figcaption>
+          <b>Figure 3.</b> As within-class feature aggregation increases (top to bottom, propagation proportion
+          0.0&nbsp;&rarr;&nbsp;1.0), points become increasingly substitutable and mean accuracy decreases:
+          Shapley (0.738&nbsp;&rarr;&nbsp;0.595), BetaShapley (0.706&nbsp;&rarr;&nbsp;0.597), and
+          Banzhaf (0.720&nbsp;&rarr;&nbsp;0.590). Using substitutability as a proxy for curvature, this degradation is
+          consistent with the (1&minus;c)&sup2; bound from our submodularity analysis.
+        </figcaption>
+      </figure>
     </section>
 
     <section id="contributions">
@@ -267,15 +294,11 @@
         <h2 style="margin-bottom:0;">Citation</h2>
         <button class="copy-btn" id="copyBtn" onclick="copyBib()">Copy BibTeX</button>
       </div>
-<pre id="bibtex">@inproceedings{chi2026unifying,
-  title     = {Unifying and Optimizing Data Values for Selection via Sequential Decision-Making},
-  author    = {Chi, Hongliang and Wu, Qiong and Zhou, Zhengyi and Light, Jonathan and Dodwell, Emily and Ma, Yao},
-  booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
-  series    = {Proceedings of Machine Learning Research},
-  publisher = {PMLR},
-  year      = {2026},
-  eprint    = {2502.04554},
-  archivePrefix = {arXiv}
+<pre id="bibtex">@article{chi2025unifying,
+  title={Unifying and Optimizing Data Values for Selection via Sequential-Decision-Making},
+  author={Chi, Hongliang and Wu, Qiong and Zhou, Zhengyi and Light, Jonathan and Dodwell, Emily and Ma, Yao},
+  journal={arXiv preprint arXiv:2502.04554},
+  year={2025}
 }</pre>
     </section>
 
@@ -287,8 +310,8 @@
     <p>
       Project page for <strong>&ldquo;Unifying and Optimizing Data Values for Selection via Sequential Decision-Making&rdquo;</strong> &middot; ICML 2026 Spotlight.<br/>
       <a href="https://arxiv.org/abs/2502.04554">arXiv</a> &middot;
+      <a href="https://arxiv.org/pdf/2502.04554">PDF</a> &middot;
       <a href="https://github.com/frankhlchi/SeqDataVal">Code</a> &middot;
-      <a href="seqdataval_icml2026.pdf">PDF</a> &middot;
       <a href="https://icml.cc/virtual/2026/poster/65157">ICML</a> &middot;
       <a href="mailto:hc962@cornell.edu">Contact</a>
     </p>

@@ -7,4 +7,4 @@ Project page for **"Unifying and Optimizing Data Values for Selection via Sequen
 - Code: https://github.com/frankhlchi/SeqDataVal
 - ICML: https://icml.cc/virtual/2026/poster/65157
 
-Static single-file site (`index.html`, no build step). Served via GitHub Pages from the `main` branch root.
+Static site (`index.html` + original paper figures, no build step). Served via GitHub Pages from the `main` branch root.
