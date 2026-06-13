@@ -285,11 +285,16 @@
     <section id="results">
       <h2>Results</h2>
       <p class="lead">
-        We test our bipartite method against common data value baselines on <strong>eight datasets</strong>. We also
-        check the curvature analysis on controlled data. The <a href="https://arxiv.org/abs/2502.04554">paper</a> has
-        the full results, including data selection for large language model fine tuning.
+        We test the method in two ways. First, real data selection on <strong>eight datasets</strong>. Second, a
+        controlled study of the curvature theory. The <a href="https://arxiv.org/abs/2502.04554">paper</a> has the full
+        results, including data selection for large language model fine tuning.
       </p>
 
+      <p class="lead">
+        Figure 2 is the main result. Each panel is one dataset. A curve shows how well the chosen data does as the
+        budget grows, and higher is better. Our method generally comes out ahead. It picks useful data earlier and
+        reaches better performance for the same budget.
+      </p>
       <figure class="paper-fig">
         <img src="fig_results.png" alt="Selection curves comparing our bipartite method with baselines across eight datasets." loading="lazy" />
         <figcaption>
@@ -297,6 +302,11 @@
         </figcaption>
       </figure>
 
+      <p class="lead" style="margin-top:34px;">
+        Figure 3 checks the theory on controlled data. We slowly make points within a class more alike, so the data
+        grows more substitutable. As that happens, the popular methods lose accuracy, and the drop follows the bound we
+        prove.
+      </p>
       <figure class="paper-fig fig-narrow">
         <img src="fig_curvature.png" alt="As features within each class are merged, points become more substitutable and accuracy drops for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
         <figcaption>
