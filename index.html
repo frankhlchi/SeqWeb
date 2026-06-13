@@ -240,8 +240,7 @@
         fail. To bridge theory and practice, we propose an efficient bipartite graph-based surrogate that preserves
         submodular structure while enabling scalable greedy selection with provable guarantees. Experiments on
         classical ML benchmarks and large-scale LLM fine-tuning data selection demonstrate substantial improvements
-        over existing methods. Code is publicly available at
-        <a href="https://github.com/frankhlchi/SeqDataVal">https://github.com/frankhlchi/SeqDataVal</a>.
+        over existing methods.
       </p>
     </section>
 
@@ -249,23 +248,16 @@
       <h2>The Story</h2>
       <p class="lead">
         Approximate dynamic programming, or ADP, is one of the classic and most elegant ideas in optimization. It gets
-        less attention today than reinforcement learning, but it runs deep. The line runs from Richard Bellman to
-        Warren Powell and Dimitri Bertsekas. For decades it has solved hard real world problems, from fleet management
-        to live ride hailing systems like Uber.
+        less attention than reinforcement learning today, but it runs deep, from Richard Bellman to Warren Powell and
+        Dimitri Bertsekas. For decades it has solved hard real world problems, from fleet management to live ride
+        hailing systems like Uber.
       </p>
       <p class="lead">
-        LLMs have made training data the thing that matters most. And picking that data is rarely one shot. Data keeps
-        arriving in batches, and earlier picks stay in. The real question is how to handle these dynamics. Yet most
-        methods still pick one fixed subset.
-      </p>
-      <p class="lead">
-        So we brought ADP to this setting. Seen as a sequential decision process, popular methods like Data Shapley are
-        just myopic special cases. That one view unifies them, shows when they fail, and gives a faster and more
-        accurate selector with guarantees. This holds on both classical ML and large scale LLM fine tuning.
-      </p>
-      <p class="lead">
-        Optimization is everywhere. New tools like LLMs hand us fresh problems to optimize. They also work as a new
-        kind of optimization tool for many other problems.
+        LLMs have made training data the biggest lever we have, and picking that data is rarely a one shot choice. Data
+        keeps arriving in batches, and earlier picks stay in the set, yet most methods still settle for one fixed
+        subset. We bring ADP to this setting instead. Seen as a sequential decision process, popular methods like Data
+        Shapley turn out to be myopic special cases, and that single view shows when they fail and leads to a faster,
+        more accurate selector with guarantees.
       </p>
       <p class="tribute">
         In memory of Dimitri Bertsekas. His work on dynamic programming shaped this field, and this paper.
@@ -277,9 +269,8 @@
       <p class="lead">
         We often want to keep only the most useful part of a training set. Methods like <strong>Data Shapley</strong>
         give each example a score, and we pick the top ones. This works well in practice, but it has been hard to say
-        why, or when it breaks. Our idea is to stop scoring all the data at once. Instead, we pick data one step at a
-        time. The best order to pick comes from <strong>dynamic programming</strong>. A data value is then just a way
-        to encode that best order.
+        why it works, or when it breaks. Our idea is to pick data one step at a time, where the best order comes from
+        <strong>dynamic programming</strong>. A data value is then just a way to encode that order.
       </p>
 
       <figure class="paper-fig">
@@ -291,12 +282,6 @@
           programming gives the best curve.
         </figcaption>
       </figure>
-
-      <p class="lead" style="margin-top:24px;">
-        We also show when these scoring methods start to fail. What matters is submodularity and how curved the utility
-        is. We then replace them with a <strong>bipartite graph surrogate</strong>. It keeps the submodular structure,
-        scales to large data, and comes with provable guarantees.
-      </p>
     </section>
 
     <section id="formulation">
