@@ -125,6 +125,16 @@
   }
   .eq mjx-container{margin:0 auto;}
 
+  h3.sub{font-size:1.1rem;color:var(--ink);margin:34px 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .res-wrap{overflow-x:auto;margin-top:8px;}
+  table.res{width:100%;border-collapse:collapse;font-size:.96rem;}
+  table.res th,table.res td{padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;}
+  table.res thead th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1.5px solid #d7dae8;}
+  table.res td.num,table.res th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  table.res tr.ours{background:var(--accent-soft);}
+  table.res tr.ours td{font-weight:700;color:var(--accent-dark);}
+  .tablenote{font-size:.82rem;color:var(--muted);margin:8px 0 0;}
+
   /* Figures (original paper figures) */
   figure.paper-fig{margin:26px auto 0;text-align:center;}
   figure.paper-fig img{
@@ -329,31 +339,49 @@
     <section id="results">
       <h2>Results</h2>
       <p class="lead">
-        We test the method in two ways. First, real data selection on <strong>eight datasets</strong>. Second, a
-        controlled study of the curvature theory. The <a href="https://arxiv.org/abs/2502.04554">paper</a> has the full
-        results, including data selection for large language model fine tuning.
+        We put the framework to work in two settings. First, classical machine learning, where our method is
+        <strong>Bipartite</strong>. Second, large scale LLM fine tuning, where the same idea becomes
+        <strong>BipCov</strong>. In between, a controlled study shows when the popular methods fail.
       </p>
 
+      <h3 class="sub">1. Classical ML benchmarks</h3>
       <p class="lead">
         <b>Setting.</b> We use eight OpenML datasets: 2dplanes, nomao, bbc-embeddings, MiniBooNE, digits, election,
-        electricity, and fried. We compare our method, Bipartite, against nine data value baselines, including Data
-        Shapley, Beta Shapley, Banzhaf, DataOob, DVRL, Influence, AME, LOO, and Random. Each method ranks the pool. We
-        then add points in that order, retrain the model, and trace a selection curve. The x axis is the budget \(k\),
-        the y axis is the accuracy \(U(S_k)\), and we average over 20 runs.
+        electricity, and fried. We compare Bipartite against nine data value baselines, including Data Shapley, Beta
+        Shapley, Banzhaf, DataOob, DVRL, Influence, AME, LOO, and Random. Each method ranks the pool. We then add points
+        in that order, retrain the model, and trace a selection curve. The x axis is the budget \(k\), the y axis is the
+        accuracy \(U(S_k)\), and we average over 20 runs.
       </p>
       <p class="lead">
-        <b>Why it matters.</b> In practice you have a budget, so the early part of the curve is what counts. Our method
+        <b>Why it matters.</b> In practice you have a budget, so the early part of the curve is what counts. Bipartite
         puts the most useful data first. On digits it reaches 80% accuracy from about 25 samples, while the baselines
         need close to twice as many. This early lead shows up across the datasets.
       </p>
       <figure class="paper-fig">
         <img src="fig_results.png" alt="Selection curves comparing our bipartite method with baselines across eight datasets." loading="lazy" />
         <figcaption>
-          <b>Figure 2.</b> Our bipartite method compared with baselines on eight datasets.
+          <b>Figure 2.</b> Bipartite compared with baselines on eight datasets.
         </figcaption>
       </figure>
+      <p class="lead" style="margin-top:22px;">
+        At a larger budget of 500 points, Bipartite has the best average accuracy across the eight datasets. It ranks
+        first on three of them and ties for first on two more.
+      </p>
+      <div class="res-wrap">
+        <table class="res">
+          <thead><tr><th>Method</th><th class="num">Avg. accuracy at budget 500</th></tr></thead>
+          <tbody>
+            <tr class="ours"><td>Bipartite (ours)</td><td class="num">0.828</td></tr>
+            <tr><td>Beta Shapley</td><td class="num">0.821</td></tr>
+            <tr><td>Data Shapley</td><td class="num">0.820</td></tr>
+            <tr><td>DVRL</td><td class="num">0.758</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tablenote">Mean accuracy over the eight datasets, 20 runs each. Full per dataset numbers are in the paper.</p>
 
-      <p class="lead" style="margin-top:34px;">
+      <h3 class="sub">2. When the simple methods fail</h3>
+      <p class="lead">
         <b>Setting.</b> This is a controlled test of the theory. We start from a real dataset and slowly blend each
         point's features with its within-class neighbors, set by a proportion \(p \in [0,1]\):
       </p>
@@ -380,6 +408,29 @@
           bound from our submodularity analysis.
         </figcaption>
       </figure>
+
+      <h3 class="sub">3. LLM fine-tuning (DATE-LM)</h3>
+      <p class="lead">
+        <b>Setting.</b> We move the same idea to instruction selection for LLM fine tuning, using the DATE-LM benchmark.
+        From a pool of 200k instructions we select 10k, LoRA fine tune <strong>Llama-3.1-8B</strong>, and evaluate on
+        MMLU, GSM8K, and BBH. Our method here is BipCov, which first covers the task references and then falls back to
+        similarity. Scores are the mean over three seeds.
+      </p>
+      <p class="lead">
+        <b>Why it matters.</b> Which data you fine tune on is now one of the biggest levers for LLMs. BipCov beats
+        strong selection baselines on this real pipeline.
+      </p>
+      <div class="res-wrap">
+        <table class="res">
+          <thead><tr><th>Method</th><th class="num">Avg. accuracy (MMLU / GSM8K / BBH)</th></tr></thead>
+          <tbody>
+            <tr class="ours"><td>BipCov (ours)</td><td class="num">63.89 ± 0.34</td></tr>
+            <tr><td>RDS+</td><td class="num">62.88 ± 0.25</td></tr>
+            <tr><td>Random</td><td class="num">62.82 ± 0.31</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tablenote">200k instruction pool, select 10k, LoRA fine-tune Llama-3.1-8B, three seeds. Numbers are percentages.</p>
     </section>
 
     <section id="contributions">
