@@ -335,10 +335,16 @@
       </p>
 
       <p class="lead">
-        Figure 2 is the main result. Each panel is one dataset. The x axis is the selection budget, that is, how many
-        points we have picked. The y axis is the utility \(U(S_k)\) of that selection, so each line is a selection
-        curve and the objective is the area under it. Our method generally comes out ahead. It picks useful data
-        sooner and holds a higher curve for the same budget.
+        <b>Setting.</b> We use eight OpenML datasets: 2dplanes, nomao, bbc-embeddings, MiniBooNE, digits, election,
+        electricity, and fried. We compare our method, Bipartite, against nine data value baselines, including Data
+        Shapley, Beta Shapley, Banzhaf, DataOob, DVRL, Influence, AME, LOO, and Random. Each method ranks the pool. We
+        then add points in that order, retrain the model, and trace a selection curve. The x axis is the budget \(k\),
+        the y axis is the accuracy \(U(S_k)\), and we average over 20 runs.
+      </p>
+      <p class="lead">
+        <b>Why it matters.</b> In practice you have a budget, so the early part of the curve is what counts. Our method
+        puts the most useful data first. On digits it reaches 80% accuracy from about 25 samples, while the baselines
+        need close to twice as many. This early lead shows up across the datasets.
       </p>
       <figure class="paper-fig">
         <img src="fig_results.png" alt="Selection curves comparing our bipartite method with baselines across eight datasets." loading="lazy" />
@@ -348,18 +354,30 @@
       </figure>
 
       <p class="lead" style="margin-top:34px;">
-        Figure 3 checks the theory on controlled data. We slowly make points within a class more alike, so the data
-        grows more substitutable. As that happens, the popular methods lose accuracy, and the drop follows the bound we
-        prove.
+        <b>Setting.</b> This is a controlled test of the theory. We start from a real dataset and slowly blend each
+        point's features with its within-class neighbors, set by a proportion \(p \in [0,1]\):
+      </p>
+      <div class="eq">
+        \[ x_i^{\text{new}} = (1-p)\,x_i + p\cdot \mathrm{mean}\big(\{\,x_j : j \in \mathcal{N}_i\,\}\big). \]
+      </div>
+      <p class="lead">
+        Here \(\mathcal{N}_i\) is the set of within-class neighbors of point \(i\). At \(p=0\) the points keep their own
+        features and stay easy to tell apart, which means low substitutability and low curvature. At \(p=1\) the points
+        in a class collapse onto one shared profile, which means high substitutability and high curvature. We track the
+        mean accuracy of Data Shapley, Beta Shapley, and Banzhaf as \(p\) goes from 0 to 1.
+      </p>
+      <p class="lead">
+        <b>Why it matters.</b> This pins down when the popular methods break. As the points become interchangeable, all
+        three fall together, and the size of the drop tracks the bound we prove. So the theory does not just say that
+        they fail. It says exactly when.
       </p>
       <figure class="paper-fig fig-narrow">
         <img src="fig_curvature.png" alt="As features within each class are merged, points become more substitutable and accuracy drops for Shapley, BetaShapley, and Banzhaf." loading="lazy" />
         <figcaption>
-          <b>Figure 3.</b> We slowly merge the features within each class, from top to bottom, as the propagation
-          proportion goes from 0.0 to 1.0. Points then become more substitutable, and mean accuracy drops. Shapley
-          goes from 0.738 to 0.595. BetaShapley goes from 0.706 to 0.597. Banzhaf goes from 0.720 to 0.590. We use
-          substitutability as a proxy for curvature. This drop matches the (1&minus;c)&sup2; bound from our
-          submodularity analysis.
+          <b>Figure 3.</b> Top to bottom, the propagation proportion goes from 0.0 to 1.0. Points become more
+          substitutable, and mean accuracy drops: Shapley 0.738 to 0.595, BetaShapley 0.706 to 0.597, and Banzhaf
+          0.720 to 0.590. Using substitutability as a proxy for curvature, this drop matches the (1&minus;c)&sup2;
+          bound from our submodularity analysis.
         </figcaption>
       </figure>
     </section>
